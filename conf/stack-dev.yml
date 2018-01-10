@@ -7,9 +7,12 @@ networks:
 services:
   source:
     image: radiobretzel/source:dev
+    command: ["./test.liq"]
     build:
       context: ./source
       dockerfile: ./dockerfiles/dev
+    volumes: 
+      - ../_data/audio/ok:/audio
     hostname: source-test
     networks:
       radiobretzel:
