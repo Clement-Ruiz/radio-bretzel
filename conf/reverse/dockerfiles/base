@@ -1,3 +1,0 @@
-FROM  traefik:1.4-alpine
-
-LABEL docker.image.maintainer="Papy Bretzel <papybretzel@ntymail.com>"

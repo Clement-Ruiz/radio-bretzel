@@ -1,0 +1,13 @@
+version: "3.3"
+
+services:
+  source:
+    command: ./test.liq
+    image: radiobretzel/source:dev
+    build:
+      context: ./source/
+      dockerfile: dockerfiles/dev
+    ports:
+      - 8080:8080
+    volumes:
+      - ./source/scripts:/scripts

@@ -1,0 +1,33 @@
+version: "3.3"
+
+networks:
+   radiobretzel:
+      driver: bridge
+
+services:
+   backend:
+      image: radiobretzel/backend:dev
+      build:
+         context: ./backend/
+         dockerfile: dockerfiles/dev
+      depends_on:
+         - database
+      ports:
+         - 80:5000
+      volumes:
+         - ./backend/:/usr/src/app
+         - /var/run/docker.sock:/var/run/docker.sock
+      networks:
+         radiobretzel:
+            aliases:
+               - backend
+               - backend.radiobretzel
+   database:
+      image: mongo
+      ports:
+         - 27017:27017
+      networks:
+         radiobretzel:
+            aliases:
+               - database
+               - database.radiobretzel
