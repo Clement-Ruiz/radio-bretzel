@@ -1,0 +1,51 @@
+version: "3.3"
+
+networks:
+  radiobretzel:
+    driver: bridge
+
+services:
+  source:
+    image: papybretzel/ingesup-rb-source:latest
+    build:
+      context: ./source
+    hostname: source-test.radiobretzel
+    ports:
+      - 4242:8080
+    # labels:
+    #   - "traefik.backend=ls"
+    #   - "traefik.port=8080"
+    #   - "traefik.frontend.rule=Host:ls.traefik"
+    networks:
+      radiobretzel:
+        aliases:
+          - source-test.radiobretzel
+
+  backend:
+     image: papybretzel/ingesup-rb-backend:latest
+     build:
+        context: ./backend
+     hostname: backend.radiobretzel
+     ports:
+        - 80:5000
+     volumes:
+        - ./backend:/usr/src/radiobretzel
+        - /var/run/docker.sock:/var/run/docker.sock
+     networks:
+        radiobretzel:
+           aliases:
+             - backend.radiobretzel
+
+  # proxy:
+  #   image: traefik
+  #   command: --web --docker --docker.domain=traefik --logLevel=DEBUG
+  #   networks:
+  #     radiobretzel:
+  #       aliases:
+  #         - traefik.traefik
+  #   ports:
+  #     - "80:80"
+  #     - "8080:8080"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /dev/null:/traefik.toml

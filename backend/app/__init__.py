@@ -1,44 +1,43 @@
-from flask import Flask
-from flask_pymongo import PyMongo
+from flask import Flask, jsonify
 
-import docker
+from app import docker
+from app.database import db
+from app.config import load
 
-from app.api.source import SourceModels
-
-def start(config):
+def start():
+   """ Main application entry point """
    app = Flask(__name__)
-   app.config.from_object(config)
 
-   docker_client = docker.DockerClient(
-      base_url=config.DOCKER_URL,
-      version=config.DOCKER_VERSION
-   )
+   rbConfig = load()
+   app.config.update(rbConfig)
 
-   mongo_client = PyMongo(app)
+   register_modules(app)
 
    @app.route('/')
    def hello_world():
       return 'Welcome to Radio Bretzel'
 
-   @app.route('/new', methods=['GET','POST'])
-   def new():
+   # @app.route('/new', methods=['GET','POST'])
+   # def new():
+   #       newSource = source.create('test_source-creation')
+   #       return newSource.id
+   #
+   # @app.route('/next')
+   # def next():
+   #    return SourceModels.select_next_track()
 
-         source = SourceModels.create(docker_client, 'test_source-creation')
-         return source.id
+   @app.route('/config')
+   def get_config():
+       return jsonify(rbConfig)
 
-   @app.route('/source', methods=['POST'])
-   def source():
-      if request.method == 'POST':
-         source_data = SourceModels.create_valid_source_data(request.args['id'],
-            request.args['active'],
-            request.args['name'],
-            request.args['container'],
-            request.args['description'])
-         source = SourceModels.create_source(source_date)
-         return source.id
-
-   @app.route('/next')
-   def next():
-      return SourceModels.select_next_track()
+   @app.route('/docker')
+   def get_docker():
+       return jsonify(app.docker.info())
 
    return app
+
+
+def register_modules(app):
+    """Activate Flask extensions and initiate external connections"""
+    # db.init_app(app)
+    docker.init_app(app)

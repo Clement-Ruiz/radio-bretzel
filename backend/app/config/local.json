@@ -1,0 +1,20 @@
+{
+   "SITE_NAME": "Radio Bretzel Backend",
+   "OBJECTS_NAME_PREFIX": "RB_",
+
+   "DOCKER_URL":  "unix://var/run/docker.sock",
+   "DOCKER_VERSION":  "auto",
+
+   "MONGO": {
+      "HOST":  "mongo.radiobretzel"
+   },
+
+   "SOURCE": {
+      "CONTAINER_ARGS": {
+         "image": "papybretzel/ingesup-rb-source:latest",
+         "detach": true,
+         "read_only": true,
+         "volumes": null
+      }
+   }
+}

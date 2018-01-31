@@ -1,0 +1,4 @@
+{
+   "TESTING" : true,
+   "WTF_CSRF_ENABLED" : false
+}

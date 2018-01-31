@@ -1,6 +1,6 @@
-from app import start, config
+from app import start
 
-app = start(config.Dev)
+app = start()
 
 if __name__ == '__main__':
    app.run(debug=True,host='0.0.0.0')
