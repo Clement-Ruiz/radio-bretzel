@@ -1,13 +1,14 @@
 {
-   "SITE_NAME": "Radio Bretzel Backend",
+   "NAME": "RadioBretzel",
    "OBJECTS_NAME_PREFIX": "RB_",
 
    "DOCKER_URL":  "unix://var/run/docker.sock",
    "DOCKER_VERSION":  "auto",
 
-   "MONGO": {
-      "HOST": "mongo.radiobretzel"
-   },
+
+   "MONGO_HOST": "mongo.radiobretzel",
+   "MONGO_DBNAME": "radiobretzel",
+
 
    "SOURCE": {
       "CONTAINER_ARGS": {

@@ -1,16 +1,13 @@
 from flask import Flask, jsonify
+from flask_pymongo import PyMongo
 
-from app import docker
-from app.database import db
-from app.config import load
+from app import docker, config
 
 def start():
    """ Main application entry point """
    app = Flask(__name__)
 
-   rbConfig = load()
-   app.config.update(rbConfig)
-
+   load_config(app)
    register_modules(app)
 
    @app.route('/')
@@ -19,8 +16,8 @@ def start():
 
    # @app.route('/new', methods=['GET','POST'])
    # def new():
-   #       newSource = source.create('test_source-creation')
-   #       return newSource.id
+   #    newSource = source.create('test_source-creation')
+   #    return newSource.id
    #
    # @app.route('/next')
    # def next():
@@ -28,16 +25,19 @@ def start():
 
    @app.route('/config')
    def get_config():
-       return jsonify(rbConfig)
+      return jsonify(rbConfig)
 
    @app.route('/docker')
    def get_docker():
-       return jsonify(app.docker.info())
+      return jsonify(app.docker.info())
 
    return app
 
+def load_config(app):
+    rbConfig = config.load()
+    app.config.update(rbConfig)
 
 def register_modules(app):
-    """Activate Flask extensions and initiate external connections"""
-    # db.init_app(app)
-    docker.init_app(app)
+   """Activate Flask extensions and initiate external connections"""
+   PyMongo(app)
+   docker.init_app(app)
