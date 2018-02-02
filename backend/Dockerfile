@@ -9,5 +9,6 @@ RUN pip install --upgrade pip && \
 VOLUME /usr/src/radiobretzel /var/run/docker.sock
 EXPOSE 5000
 
-# ENTRYPOINT ["/usr/bin/python"]
+ENV RADIO_BRETZEL_ENV development
+
 CMD ["python", "run.py"]

@@ -1,43 +1,55 @@
-from flask import Flask, jsonify
-from flask_pymongo import PyMongo
+import os
+from flask import Flask, jsonify, g
 
-from app import docker, config
+from app import config, local
+from app.database import init_db
+from app.docker import init_docker
+from app.channel import channel
 
-def start():
+def create_app():
    """ Main application entry point """
    app = Flask(__name__)
 
    load_config(app)
    register_modules(app)
+   register_blueprints(app)
+   # register_teardown(app)
 
    @app.route('/')
    def hello_world():
       return 'Welcome to Radio Bretzel'
 
-   # @app.route('/new', methods=['GET','POST'])
-   # def new():
-   #    newSource = source.create('test_source-creation')
-   #    return newSource.id
-   #
-   # @app.route('/next')
-   # def next():
-   #    return SourceModels.select_next_track()
-
-   @app.route('/config')
-   def get_config():
-      return jsonify(rbConfig)
-
    @app.route('/docker')
    def get_docker():
-      return jsonify(app.docker.info())
+      networks = []
+      for network in app.docker.networks.list(names=['rb_default']):
+         networks.append(network.short_id)
+      return jsonify(app.source_network.short_id)
 
    return app
 
 def load_config(app):
-    rbConfig = config.load()
-    app.config.update(rbConfig)
+   """ Load app configuration """
+   app.config.from_object(config.Default)
+   env = os.environ.get('RADIO_BRETZEL_ENV', 'development')
+   if env == 'development':
+      app.config.from_object(config.Development)
+   elif env == 'test':
+      app.config.from_object(config.Test)
+   app.config.from_object(local.Config)
 
 def register_modules(app):
    """Activate Flask extensions and initiate external connections"""
-   PyMongo(app)
-   docker.init_app(app)
+   init_db(app)
+   init_docker(app)
+
+
+def register_blueprints(app):
+   """Register blueprints with the Flask application."""
+   app.register_blueprint(channel, url_prefix='/channel')
+
+# def register_teardown(app):
+#    """Register teardowns """
+#    @app.teardown_appcontext
+#    def remove_source_network(error):
+#       teardown_docker(app)

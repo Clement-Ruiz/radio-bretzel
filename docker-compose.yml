@@ -1,7 +1,7 @@
 version: "3.3"
 
 networks:
-  radiobretzel:
+  rb_default:
     driver: bridge
 
 services:
@@ -9,7 +9,7 @@ services:
   #   image: papybretzel/ingesup-rb-source:latest
   #   build:
   #     context: ./source
-  #   hostname: source-test.radiobretzel
+  #   hostname: source-test.rb_default
   #   ports:
   #     - 4242:8080
   #   # labels:
@@ -17,15 +17,15 @@ services:
   #   #   - "traefik.port=8080"
   #   #   - "traefik.frontend.rule=Host:ls.traefik"
   #   networks:
-  #     radiobretzel:
+  #     rb_default:
   #       aliases:
-  #         - source-test.radiobretzel
+  #         - source-test.rb_default
 
   backend:
      image: papybretzel/ingesup-rb-backend:latest
      build:
         context: ./backend
-     hostname: backend.radiobretzel
+     hostname: backend.rb_default
      depends_on:
         - database
      ports:
@@ -34,20 +34,20 @@ services:
         - ./backend:/usr/src/radiobretzel
         - /var/run/docker.sock:/var/run/docker.sock
      networks:
-        radiobretzel:
+        rb_default:
            aliases:
-             - backend.radiobretzel
+             - backend.rb_default
 
   database:
      image: mongo
-     hostname: mongo.radiobretzel
+     hostname: mongo.rb_default
      # environment:
      #    - MONGO_INITDB_ROOT_USERNAME=app
      #    - MONGO_INITDB_ROOT_PASSWORD=S€cur3-P@$$
      networks:
-        radiobretzel:
+        rb_default:
            aliases:
-              - mongo.radiobretzel
+              - mongo.rb_default
 
   # proxy:
   #   image: traefik

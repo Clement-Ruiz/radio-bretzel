@@ -1,9 +1,0 @@
-{
-   "DEBUG": true,
-   "ASSETS_DEBUG" : true,
-   "WTF_CSRF_ENABLED" : false,
-
-   "SOURCE" : {
-      "CONTAINER_DEFAULT_IMAGE": "radiobretzel/source:dev"
-   }
-}

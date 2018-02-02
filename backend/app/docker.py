@@ -1,21 +1,22 @@
 import docker
 
-_con = None
+def connect_docker(config):
+   client = docker.DockerClient(
+      base_url=config["url"],
+      version=config["version"]
+   )
+   return client
 
-def client(config):
-   global _con
-   if not _con:
-      _con = docker.DockerClient(
-         base_url=config["DOCKER_URL"],
-         version=config["DOCKER_VERSION"]
-      )
-   return _con
+def init_docker(app):
+   if not hasattr(app, 'docker'):
+      app.docker = connect_docker(app.config.get_namespace('DOCKER_'))
+   app.source_network = get_source_network(app)
+   return app
 
-def init_app(app):
-    global _con
-    if not _con:
-       client(app.config)
-
-    app.docker = _con
-    return app
-    #_con.volumes.create(name="radiobretzel-db", config.DOCKER_VOLUME_OPTS)
+def get_source_network(app):
+   network_config = app.config.get_namespace('SOURCE_NETWORK_')
+   network_name = app.config['OBJECTS_NAME_PREFIX'] + app.config['SOURCE_NETWORK']
+   if not hasattr(app, 'source_network'):
+      print("Passing in network creation")
+      app.source_network = app.docker.networks.create(network_name, **network_config)
+   return app.source_network
