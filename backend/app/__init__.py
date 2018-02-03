@@ -6,11 +6,11 @@ from app.database import init_db
 from app.docker import init_docker
 from app.channel import channel
 
-def create_app():
+def create_app(env):
    """ Main application entry point """
    app = Flask(__name__)
 
-   load_config(app)
+   load_config(app, env)
    register_modules(app)
    register_blueprints(app)
    # register_teardown(app)
@@ -28,14 +28,15 @@ def create_app():
 
    return app
 
-def load_config(app):
+def load_config(app, env):
    """ Load app configuration """
    app.config.from_object(config.Default)
-   env = os.environ.get('RADIO_BRETZEL_ENV', 'development')
    if env == 'development':
       app.config.from_object(config.Development)
    elif env == 'test':
       app.config.from_object(config.Test)
+   else:
+      raise ValueError('environment variable not supported ('+ env + ')')
    app.config.from_object(local.Config)
 
 def register_modules(app):

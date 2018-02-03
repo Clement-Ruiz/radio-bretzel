@@ -22,7 +22,6 @@ class Default(object):
    MONGO_HOST = 'mongo.rb_default'
    MONGO_DBNAME = 'radiobretzel'
 
-
    SOURCE_CONTAINER_IMAGE = 'radiobretzel/source:latest'
    SOURCE_CONTAINER_AUDIO_VOLUME = 'radiobretzel_audio'
    SOURCE_NETWORK = 'default'
