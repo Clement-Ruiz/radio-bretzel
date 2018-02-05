@@ -7,11 +7,12 @@
 #   this folder.
 #
 #   /!\
-#               This file should not be edited by anyone except Radio
-#               Bretzel development team.
-#                                                                          /!\
+#             This file should not be edited by anyone except Radio
+#             Bretzel development team. If you want to overide any of
+#             these values please do it in local.py file.
+#                                                                        /!\
 
-class Default(object):
+class default(object):
 
    NAME = 'RadioBretzel'
    OBJECTS_NAME_PREFIX = 'rb_'
@@ -22,19 +23,19 @@ class Default(object):
    MONGO_HOST = 'mongo.rb_default'
    MONGO_DBNAME = 'radiobretzel'
 
-   SOURCE_CONTAINER_IMAGE = 'radiobretzel/source:latest'
-   SOURCE_CONTAINER_AUDIO_VOLUME = 'radiobretzel_audio'
+   SOURCE_IMAGE = 'radiobretzel/source:latest'
+   # SOURCE_CONTAINER_AUDIO_VOLUME = 'radiobretzel_audio'
    SOURCE_NETWORK = 'default'
 
-class Development(object):
+class development(default):
 
    DEBUG = True
    ASSETS_DEBUG = True
    WTF_CSRF_ENABLED = False
 
-   SOURCE_CONTAINER_IMAGE = 'radiobretzel/source:dev'
+   SOURCE_IMAGE = 'radiobretzel/source:dev'
 
-class Test(object):
+class test(default):
 
-   TESTING =  True
+   TESTING = True
    WTF_CSRF_ENABLED =  False

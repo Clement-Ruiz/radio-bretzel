@@ -1,16 +1,16 @@
 import os
 from flask import Flask, jsonify, g
 
-from app import config, local
+from app import config
 from app.database import init_db
 from app.docker import init_docker
 from app.channel import channel
 
-def create_app(env):
+def create_app():
    """ Main application entry point """
    app = Flask(__name__)
 
-   load_config(app, env)
+   load_config(app)
    register_modules(app)
    register_blueprints(app)
    # register_teardown(app)
@@ -28,16 +28,16 @@ def create_app(env):
 
    return app
 
-def load_config(app, env):
+def load_config(app):
    """ Load app configuration """
-   app.config.from_object(config.Default)
+   env = os.environ.get('RADIO_BRETZEL_ENV', 'development')
    if env == 'development':
-      app.config.from_object(config.Development)
+      app.config.from_object(config.development)
    elif env == 'test':
-      app.config.from_object(config.Test)
+      app.config.from_object(config.test)
    else:
       raise ValueError('environment variable not supported ('+ env + ')')
-   app.config.from_object(local.Config)
+   app.config.from_pyfile('local.py')
 
 def register_modules(app):
    """Activate Flask extensions and initiate external connections"""

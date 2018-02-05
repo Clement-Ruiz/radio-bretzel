@@ -1,76 +1,73 @@
 import os, re
-from random import randint
+
 from flask import current_app as app
 
-from app import utils
+from app.database import Document
 
+class Source(object):
 
-class Channel(object):
+   def get_container_name(self):
+      return app.config['OBJECTS_NAME_PREFIX'] + self._id
 
-   def __init__(self, _id, **dockerArgs):
-      args = {}
-      args['name'] = _id
-      args.update(**dockerArgs)
-      if self.validate(**args):
-         self._id = _id
-         self.source = self.create_source(_id, **dockerArgs)
-         self.save()
-      else:
-         raise ValueError("Couldn't create Channel - wrong parameter detected")
-
-
-   def create_source(self,
-               name,
-               # volumes={
-               #    'radiobretzel_audio': {
-               #       "bind": {
-               #          "path": "/audio",
-               #          "mode": "ro"
-               #       }
-               #    }
-               # },
-               **dockerArgs):
+   def create_source(self):
       """ Create a source container from given args """
-
-      conf = dockerArgs
-      default = {
+      config = app.config.get_namespace('SOURCE_CONTAINER_')
+      container_args = {
+         'name': self.get_container_name(),
          'detach': True,
          'read_only': True,
          'network': app.config['OBJECTS_NAME_PREFIX'] + app.config['SOURCE_NETWORK'],
          'auto_remove': True
       }
-
-      # "volumes": {
-      #    utils.prefix(config['SOURCE_AUDIO_VOLUME_NAME']): {
-
-      #    }
-      # }
-      conf.update(default)
-      if dockerArgs.get('image'):
-         image = dockerArgs['image']
-      else:
-         image = app.config['SOURCE_CONTAINER_IMAGE']
-      conf['name'] = app.config['OBJECTS_NAME_PREFIX'] + name
-
-      source = app.docker.containers.run(image=image, **conf)
+      config.update(container_args)
+      source = app.docker.containers.run(image=app.config['SOURCE_IMAGE'], **config)
       if not source:
-         raise SystemError('Failed to create source container')
+         return False
       return source
 
-   def save(self):
-      data = {
-         '_id': self._id,
-         'source': self.source.name
-      }
-      if app.mongo.db.sources.insert_one(data):
-         return True
+   def get_source(self):
+      """ Return source container object or false if doesn't exist """
+      try:
+         source = app.docker.containers.get(self.get_container_name())
+      except:
+         return False
+      return source
+
+   def get_or_create_source(self):
+      """ Return source container object, and create it if doesn't exist """
+      source = self.get_source()
+      if not source:
+         source = self.create_source()
+      if not source:
+         return False
+      return source
 
    def reload_source(self):
       return True
 
-   def validate(self, **data):
-      for field in data:
-         if field == 'name':
-            if not data[field] or not utils.validate_slug(data[field]):
-               return False #'Attribute name don\'t fit the requirements.'
-      return True
+
+class Channel(Source):
+
+   def __init__(self,
+                  _id,
+                  name=None):
+      self._id = _id
+      if name:
+         self.name = name.title()
+      else:
+         name = _id.replace('-', ' ')
+         self.name = name.title()
+      self.source = self.get_or_create_source()
+
+   def document(self):
+      document = {
+         '_id': self._id,
+         'name': self.name,
+      }
+      return document
+
+   def save(self):
+      return Document.save(app.mongo.db.channels, self.document())
+
+   def delete(self):
+      return Document.delete(app.mongo.db.channels, self.document())
