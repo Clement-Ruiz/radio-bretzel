@@ -11,4 +11,4 @@ EXPOSE 5000
 
 ENV RADIO_BRETZEL_ENV development
 
-CMD ["python", "run.py"]
+CMD ["./run.py"]
