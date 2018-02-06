@@ -5,9 +5,9 @@ from flask import current_app as app
 from app.database import Document
 
 class Source(object):
-
+   """ Abstract class whose Channels will inherit """
    def get_container_name(self):
-      return app.config['OBJECTS_NAME_PREFIX'] + self._id
+      return app.config['OBJECTS_NAME_PREFIX'] + 'source_' + self._id
 
    def create_source(self):
       """ Create a source container from given args """
@@ -40,10 +40,14 @@ class Source(object):
          source = self.create_source()
       if not source:
          return False
-      return source
+      else:
+         return source
 
    def reload_source(self):
       return True
+
+   def delete_source(self):
+      return app.docker.containers.remove(self.get_container_name())
 
 
 class Channel(Source):
